@@ -7,7 +7,7 @@ import (
 )
 
 func TestGetResult(t *testing.T) {
-	serv, err := NewServer("192.168.88.134:8384", nil)
+	serv, err := NewServer("127.0.0.1:8384", nil)
 	if err != nil {
 		t.Error(err)
 	}
@@ -17,7 +17,7 @@ func TestGetResult(t *testing.T) {
 	scws.SetIgnore(true)
 
 	//text := "每一个 xunsearch 搜索项目都有一个独立的 INI 配置文件。DEMO 项目的配置文件 位于"
-	text := "test"
+	text := "项目"
 
 	words, err := scws.GetResult(text)
 

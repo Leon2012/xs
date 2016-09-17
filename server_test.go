@@ -5,6 +5,8 @@ import (
 	"testing"
 )
 
+var addr string = "127.0.0.1:8383"
+
 func TestBytes(t *testing.T) {
 	data := []byte{0, 1, 2, 3}
 
@@ -28,7 +30,7 @@ func TestSendTimeout(t *testing.T) {
 }
 
 func TestExecCommand(t *testing.T) {
-	serv, err := NewServer("192.168.88.134:8383", nil)
+	serv, err := NewServer(addr, nil)
 	if err != nil {
 		t.Error(err)
 	}
