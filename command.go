@@ -3,7 +3,7 @@ package xs
 import (
 	"errors"
 	//"fmt"
-	"strconv"
+	_ "strconv"
 )
 
 type XSCommand struct {
@@ -128,7 +128,6 @@ func (x *XSCommand) ToBytes() ([]byte, error) {
 	copy(buf[idx:(idx+len(buf1Bytes))], buf1Bytes)
 
 	//fmt.Println(buf)
-
 	return buf, nil
 }
 

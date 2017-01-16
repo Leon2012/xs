@@ -24,7 +24,8 @@ func TestGetResult(t *testing.T) {
 	scws.SetIgnore(true)
 
 	//text := "每一个 xunsearch 搜索项目都有一个独立的 INI 配置文件。DEMO 项目的配置文件 位于"
-	text := "test"
+
+	text := "项目"
 
 	words, err := scws.GetResult(text)
 
@@ -94,4 +95,12 @@ func TestHasWord(t *testing.T) {
 
 	serv.Close(true)
 	t.Log("closed")
+}
+
+func TestSego(t *testing.T) {
+	dict := "/Users/pengleon/go/src/github.com/huichen/sego/data/dictionary.txt"
+	text := "每一个 xunsearch 搜索项目都有一个独立的 INI 配置文件。DEMO 项目的配置文件 位于"
+	sego := NewXSTokenizerSego(dict)
+	results := sego.GetTokens(text, nil)
+	t.Log(results)
 }
