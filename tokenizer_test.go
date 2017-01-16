@@ -97,10 +97,10 @@ func TestHasWord(t *testing.T) {
 	t.Log("closed")
 }
 
-func TestSego(t *testing.T) {
-	dict := "/Users/pengleon/go/src/github.com/huichen/sego/data/dictionary.txt"
-	text := "每一个 xunsearch 搜索项目都有一个独立的 INI 配置文件。DEMO 项目的配置文件 位于"
-	sego := NewXSTokenizerSego(dict)
-	results := sego.GetTokens(text, nil)
-	t.Log(results)
-}
+// func TestSego(t *testing.T) {
+// 	dict := "/Users/pengleon/go/src/github.com/huichen/sego/data/dictionary.txt"
+// 	text := "每一个 xunsearch 搜索项目都有一个独立的 INI 配置文件。DEMO 项目的配置文件 位于"
+// 	sego := NewXSTokenizerSego(dict)
+// 	results := sego.GetTokens(text, nil)
+// 	t.Log(results)
+// }

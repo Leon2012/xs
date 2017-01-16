@@ -31,7 +31,7 @@ func TestStringSplit(t *testing.T) {
 			// for n := 0; n < pos; n++ {
 			// 	if (strings.Index(s, sep))
 			// }
-			name := part[0:pos]
+			//name := part[0:pos]
 
 			if len(part) > 1 && (part[0:1] == "+" || part[0:1] == "-") && (part[1:2] != "(" && IsChineseString(part)) {
 				newQuery += (part[0:1] + "(" + part[1:] + ")")

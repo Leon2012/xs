@@ -3,7 +3,7 @@ package xs
 import (
 	"errors"
 	//"fmt"
-	_ "strconv"
+	"strconv"
 )
 
 type XSCommand struct {

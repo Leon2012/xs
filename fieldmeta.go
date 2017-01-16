@@ -1,7 +1,7 @@
 package xs
 
 import (
-	"strconv"
+	_ "strconv"
 	"strings"
 )
 
@@ -81,30 +81,30 @@ func (x *XSFieldMeta) FromConfig(config map[string]string) {
 		}
 	}
 
-	indexVal, ok := config["index"]
-	if ok && x.Type != TYPE_BODY {
-		predef = strings.ToUpper(indexVal)
-		if predef == "SELF" {
+	// indexVal, ok := config["index"]
+	// if ok && x.Type != TYPE_BODY {
+	// 	predef = strings.ToUpper(indexVal)
+	// 	if predef == "SELF" {
 
-		}
-	}
+	// 	}
+	// }
 
-	cutLenVal, ok := config["cutlen"]
-	if ok {
-		x.Cutlen = strconv.Itoa(cutLenVal)
-	}
+	// cutLenVal, ok := config["cutlen"]
+	// if ok {
+	// 	x.Cutlen = strconv.Itoa(cutLenVal)
+	// }
 
-	weightVal, ok := config["weight"]
-	if ok && x.Type != TYPE_BODY {
-		x.Weight = strconv.Itoa(weightVal) & MAX_WDF
-	}
+	// weightVal, ok := config["weight"]
+	// if ok && x.Type != TYPE_BODY {
+	// 	x.Weight = strconv.Itoa(weightVal) & MAX_WDF
+	// }
 
-	phraseVal, ok := config["phrase"]
-	if (ok) {
-		if (phraseVal != "yes") {
-			x.Flag |= FLAG_WITH_POSITION
-		}else if (phraseVal != "no") {
-			x.Flag &= ~ FLAG_WITH_POSITION;
-		}
-	}
+	// phraseVal, ok := config["phrase"]
+	// if (ok) {
+	// 	if (phraseVal != "yes") {
+	// 		x.Flag |= FLAG_WITH_POSITION
+	// 	}else if (phraseVal != "no") {
+	// 		x.Flag &= ~ FLAG_WITH_POSITION;
+	// 	}
+	// }
 }
