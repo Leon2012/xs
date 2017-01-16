@@ -25,6 +25,17 @@ func NewDocument(c string) *XSDocument {
 	}
 }
 
+func (x *XSDocument) SetMeta(data []byte) {
+	//$_resFormat = 'Idocid/Irank/Iccount/ipercent/fweight';
+	metas := make(map[string]interface{})
+
+	docIdBytes := make([]byte, 4)
+	copy(data[0:4], docIdBytes)
+	docId := BytesToUint32(docIdBytes)
+	metas["docid"] = docId
+
+}
+
 func (x *XSDocument) Get(name string) interface{} {
 	val, ok := x.data[name]
 	if !ok {

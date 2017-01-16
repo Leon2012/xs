@@ -2,8 +2,8 @@ package xs
 
 import (
 	"errors"
-	"fmt"
-	_ "strconv"
+	//"fmt"
+	"strconv"
 )
 
 type XSCommand struct {
@@ -127,7 +127,7 @@ func (x *XSCommand) ToBytes() ([]byte, error) {
 	idx := 8 + len(bufBytes)
 	copy(buf[idx:(idx+len(buf1Bytes))], buf1Bytes)
 
-	fmt.Println(buf)
+	//fmt.Println(buf)
 
 	return buf, nil
 }
@@ -141,4 +141,9 @@ func (x *XSCommand) GetArg() int {
 func (x *XSCommand) SetArg(arg int) {
 	x.Arg1 = (arg >> 8) & 0xff
 	x.Arg2 = arg & 0xff
+}
+
+func (x *XSCommand) String() string {
+	str := "{CMD:" + strconv.Itoa(x.Cmd) + ", ARG:" + strconv.Itoa(x.GetArg()) + ", BUF:" + x.Buf + ", BUF1:" + x.Buf1 + "}"
+	return str
 }

@@ -2,6 +2,7 @@ package xs
 
 import (
 	"fmt"
+	"github.com/huichen/sego"
 	"strings"
 )
 
@@ -62,6 +63,28 @@ func NewXSTokenizerSplit(a string) *XSTokenizerSplit {
 
 func (x *XSTokenizerSplit) GetTokens(value string, doc *XSDocument) []string {
 	return strings.Split(value, x.arg)
+}
+
+/**
+ *sego 分词
+ *
+ */
+type SegoTokenizer struct {
+	dictPath  string
+	segmenter sego.Segmenter
+}
+
+func NewSegoTokenizer(dict string) *SegoTokenizer {
+	tk := &SegoTokenizer{
+		dictPath: dict,
+	}
+	tk.segmenter.LoadDictionary(dict)
+	return tk
+}
+
+func (x *SegoTokenizer) GetTokens(value string, doc *XSDocument) []string {
+	segments := x.segmenter.Segment([]byte(value))
+	return sego.SegmentsToSlice(segments, true)
 }
 
 /**

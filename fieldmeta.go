@@ -1,6 +1,7 @@
 package xs
 
 import (
+	"strconv"
 	"strings"
 )
 
@@ -51,6 +52,14 @@ func NewFieldMeta(name string, config map[string]string) *XSFieldMeta {
 	return fm
 }
 
+func (x *XSFieldMeta) String() string {
+	return x.Name
+}
+
+func (x *XSFieldMeta) Val(value string) string {
+	return value
+}
+
 func (x *XSFieldMeta) FromConfig(config map[string]string) {
 	var predef string
 
@@ -77,6 +86,25 @@ func (x *XSFieldMeta) FromConfig(config map[string]string) {
 		predef = strings.ToUpper(indexVal)
 		if predef == "SELF" {
 
+		}
+	}
+
+	cutLenVal, ok := config["cutlen"]
+	if ok {
+		x.Cutlen = strconv.Itoa(cutLenVal)
+	}
+
+	weightVal, ok := config["weight"]
+	if ok && x.Type != TYPE_BODY {
+		x.Weight = strconv.Itoa(weightVal) & MAX_WDF
+	}
+
+	phraseVal, ok := config["phrase"]
+	if (ok) {
+		if (phraseVal != "yes") {
+			x.Flag |= FLAG_WITH_POSITION
+		}else if (phraseVal != "no") {
+			x.Flag &= ~ FLAG_WITH_POSITION;
 		}
 	}
 }

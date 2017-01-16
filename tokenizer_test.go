@@ -6,8 +6,15 @@ import (
 	"testing"
 )
 
+func TestSego(t *testing.T) {
+	text := "中华人民共和国中央人民政府"
+	tokenizer := NewSegoTokenizer("/go/src/github.com/huichen/sego/data/dictionary.txt")
+	ts := tokenizer.GetTokens(text, nil)
+	fmt.Println(ts)
+}
+
 func TestGetResult(t *testing.T) {
-	serv, err := NewServer("192.168.88.134:8384", nil)
+	serv, err := NewServer(XS_SEARCH_HOST, nil)
 	if err != nil {
 		t.Error(err)
 	}
