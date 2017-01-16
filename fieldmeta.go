@@ -60,6 +60,14 @@ func (x *XSFieldMeta) Val(value string) string {
 	return value
 }
 
+func (x *XSFieldMeta) IsNumeric() {
+	return x.Type == TYPE_NUMERIC
+}
+
+func (x *XSFieldMeta) IsSpeical() {
+	return x.Type == TYPE_ID || x.Type == TYPE_TITLE || x.Type == TYPE_BODY
+}
+
 func (x *XSFieldMeta) FromConfig(config map[string]string) {
 	var predef string
 
