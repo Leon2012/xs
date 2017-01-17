@@ -55,12 +55,14 @@ func TestSearch(t *testing.T) {
 	}
 	serv.SetProject(app, "")
 
+	//cmd1 := NewCommand(XS_CMD_QUERY_PREFIX, 1, 0, "pid", "")
+	//serv.ExecCommand1(cmd1)
+
 	pageBytes := make([]byte, 8)
 	offsetBytes := make([]byte, 4)
 	binary.LittleEndian.PutUint32(offsetBytes, uint32(offset))
 	pageSizeBytes := make([]byte, 4)
 	binary.LittleEndian.PutUint32(pageSizeBytes, uint32(pageSize))
-
 	copy(pageBytes[0:4], offsetBytes)
 	copy(pageBytes[4:8], pageSizeBytes)
 
@@ -69,12 +71,13 @@ func TestSearch(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
-
-	fmt.Println("res:" + res.String())
-	data := []byte(res.Buf)
-	if len(data) == 4 {
-		count := binary.LittleEndian.Uint32(data)
-		fmt.Println("count:" + strconv.Itoa(int(count)))
+	if res != nil {
+		fmt.Println("res:" + res.String())
+		data := []byte(res.Buf)
+		if len(data) == 4 {
+			count := binary.LittleEndian.Uint32(data)
+			fmt.Println("count:" + strconv.Itoa(int(count)))
+		}
 	}
 
 	//var docs []*XSDocument

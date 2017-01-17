@@ -1,7 +1,8 @@
 package xs
 
 import (
-	_ "fmt"
+	"encoding/binary"
+	"fmt"
 	"strings"
 )
 
@@ -20,20 +21,38 @@ func NewDocument(c string) *XSDocument {
 		terms:   nil,
 		texts:   nil,
 		charset: c,
-		meta:    nil,
+		meta:    make(map[string]interface{}),
 		resSize: 20,
 	}
 }
 
-func (x *XSDocument) SetMeta(data []byte) {
-	//$_resFormat = 'Idocid/Irank/Iccount/ipercent/fweight';
-	// metas := make(map[string]interface{})
+func (x *XSDocument) AddMetas(data []byte) {
 
-	// docIdBytes := make([]byte, 4)
-	// copy(data[0:4], docIdBytes)
-	// docId := BytesToUint32(docIdBytes)
-	// metas["docid"] = docId
+	docIdBytes := make([]byte, 4)
+	copy(docIdBytes, data[0:4])
+	fmt.Println(docIdBytes)
+	docId := binary.LittleEndian.Uint32(docIdBytes)
+	x.meta["docid"] = docId
 
+	rankBytes := make([]byte, 4)
+	copy(rankBytes, data[4:8])
+	rank := binary.LittleEndian.Uint32(rankBytes)
+	x.meta["rank"] = rank
+
+	ccountBytes := make([]byte, 4)
+	copy(ccountBytes, data[8:12])
+	ccount := binary.LittleEndian.Uint32(ccountBytes)
+	x.meta["ccount"] = ccount
+
+	percentBytes := make([]byte, 4)
+	copy(percentBytes, data[12:16])
+	percent := int32(binary.LittleEndian.Uint32(percentBytes))
+	x.meta["percent"] = percent
+
+	weightBytes := make([]byte, 4)
+	copy(weightBytes, data[16:20])
+	weight := ByteToFloat32(weightBytes)
+	x.meta["weight"] = weight
 }
 
 func (x *XSDocument) Get(name string) interface{} {

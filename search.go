@@ -1,18 +1,24 @@
 package xs
 
 import (
-//"regexp"
-//"strings"
+	//"regexp"
+	"encoding/binary"
+	"errors"
+	"fmt"
+	"strconv"
+	"strings"
 )
 
 const PAGE_SIZE = 10
 const LOG_DB = "log_db"
 
 type XSSearch struct {
-	server                                   *XSServer
-	defaultOp, limit, offset, count          int
-	prefix, fieldSet, resetScheme, lastCount bool
-	chat, query                              string
+	xs                                         *XS
+	server                                     *XSServer
+	defaultOp, limit, offset, count, lastCount int
+	fieldSet, resetScheme                      bool
+	chat, query                                string
+	prefix                                     map[string]bool
 }
 
 func NewSearch(s *XSServer) *XSSearch {
@@ -21,10 +27,10 @@ func NewSearch(s *XSServer) *XSSearch {
 		limit:       0,
 		offset:      0,
 		count:       0,
-		prefix:      false,
+		prefix:      make(map[string]bool),
 		fieldSet:    false,
 		resetScheme: false,
-		lastCount:   false,
+		lastCount:   0,
 		chat:        "UTF-8",
 	}
 	xs.server = s
@@ -43,19 +49,79 @@ func (s *XSSearch) SetFuzzy(value bool) {
 	}
 }
 
-func (s *XSSearch) Search(query string) {
+func (s *XSSearch) Search(query string, offset, limit int) ([]*XSDocument, error) {
+	query = s.preQueryString(query)
+	if limit <= 0 {
+		limit = PAGE_SIZE
+	}
+	pageBytes := make([]byte, 8)
+	offsetBytes := make([]byte, 4)
+	binary.LittleEndian.PutUint32(offsetBytes, uint32(offset))
+	pageSizeBytes := make([]byte, 4)
+	binary.LittleEndian.PutUint32(pageSizeBytes, uint32(limit))
+	copy(pageBytes[0:4], offsetBytes)
+	copy(pageBytes[4:8], pageSizeBytes)
 
+	cmd := NewCommand(XS_CMD_SEARCH_GET_RESULT, 0, XS_CMD_QUERY_OP_AND, query, string(pageBytes))
+	//fmt.Println(cmd.String())
+	res, err := s.server.ExecCommand(cmd, XS_CMD_OK_RESULT_BEGIN, XS_CMD_OK)
+	if err != nil {
+		return nil, err
+	}
+	if res != nil {
+		data := []byte(res.Buf)
+		if len(data) == 4 {
+			count := int(binary.LittleEndian.Uint32(data))
+			s.lastCount = count
+			fmt.Println("count : " + strconv.Itoa(count))
+		}
+	}
+
+	vnoes := s.xs.GetScheme().GetVnoMap()
+	//fmt.Println(vnoes)
+	docs := []*XSDocument{}
+	var doc *XSDocument
+	for {
+		res = s.server.GetRespond()
+		if res.Cmd == XS_CMD_OK && res.GetArg() == XS_CMD_OK_RESULT_END {
+			break
+		} else if res.Cmd == XS_CMD_SEARCH_RESULT_DOC {
+			doc = NewDocument("UTF-8")
+			if res.Buf != "" {
+				doc.AddMetas([]byte(res.Buf))
+			}
+			docs = append(docs, doc)
+		} else if res.Cmd == XS_CMD_SEARCH_RESULT_FIELD {
+			if doc != nil {
+				name, ok := vnoes[res.GetArg()]
+				if !ok {
+					name = strconv.Itoa(res.GetArg())
+				}
+				doc.SetField(name, res.Buf, false)
+			}
+		} else if res.Cmd == XS_CMD_SEARCH_RESULT_MATCHED {
+			if doc != nil {
+				doc.SetField("matched", strings.Split(res.Buf, " "), true)
+			}
+		} else {
+			err = errors.New("Unexpected respond in search {CMD:" + strconv.Itoa(res.Cmd) + ", ARG:" + strconv.Itoa(res.GetArg()) + "}")
+		}
+	}
+
+	s.count = s.lastCount
+	//serv.Close(false)
+	return docs, nil
 }
 
-func (s *XSSearch) preQueryString(query string) {
-	// query = strings.TrimSpace(query)
-	// if s.resetScheme {
-	// 	s.clearQuery()
-	// }
+func (s *XSSearch) preQueryString(query string) string {
+	query = strings.TrimSpace(query)
+	if s.resetScheme {
+		s.clearQuery()
+	}
 	// newQuery := ""
 	// rgp := regexp.MustCompile("[ \\t\\r\\n]+")
 	// queries := rgp.Split(query, -1)
-
+	return query
 }
 
 /**
@@ -71,4 +137,20 @@ func (s *XSSearch) clearQuery() {
 	s.server.ExecCommand1(cmd)
 	s.query = ""
 	s.count = 0
+}
+
+/**
+ * 登记搜索语句中的字段
+ * @param string $name 字段名称
+ */
+func (s *XSSearch) regQueryPrefix(name string) {
+	// v, ok := s.prefix[name]
+
+	// if !ok {
+
+	// }
+}
+
+func (x *XSSearch) Close() {
+	x.server.Close(false)
 }

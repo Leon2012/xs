@@ -233,12 +233,12 @@ func (x *XSServer) write(data []byte) error {
 	if err != nil {
 		return err
 	}
-	n, err := x.conn.Write(data)
+	_, err = x.conn.Write(data)
 	if err != nil {
 		return err
 	}
 
-	fmt.Println("write data length : " + strconv.Itoa(n))
+	//fmt.Println("write data length : " + strconv.Itoa(n))
 
 	// var n, idx int
 	// var buf []byte

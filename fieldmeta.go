@@ -60,11 +60,11 @@ func (x *XSFieldMeta) Val(value string) string {
 	return value
 }
 
-func (x *XSFieldMeta) IsNumeric() {
+func (x *XSFieldMeta) IsNumeric() bool {
 	return x.Type == TYPE_NUMERIC
 }
 
-func (x *XSFieldMeta) IsSpeical() {
+func (x *XSFieldMeta) IsSpeical() bool {
 	return x.Type == TYPE_ID || x.Type == TYPE_TITLE || x.Type == TYPE_BODY
 }
 

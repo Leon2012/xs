@@ -78,7 +78,7 @@ func (x *XSFieldScheme) AddField(name string, config map[string]string) error {
 		return errors.New("Duplicated field name: " + field.Name)
 	}
 	if field.IsSpeical() {
-		prev, ok = x.typeMap[field.Type]
+		_, ok := x.typeMap[field.Type]
 		if ok {
 			return errors.New("Duplicated type:  " + field.Name)
 		}
