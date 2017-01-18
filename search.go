@@ -21,8 +21,8 @@ type XSSearch struct {
 	prefix                                     map[string]bool
 }
 
-func NewSearch(s *XSServer) *XSSearch {
-	xs := &XSSearch{
+func NewSearch(s *XSServer, x *XS) *XSSearch {
+	search := &XSSearch{
 		defaultOp:   XS_CMD_QUERY_OP_AND,
 		limit:       0,
 		offset:      0,
@@ -33,8 +33,9 @@ func NewSearch(s *XSServer) *XSSearch {
 		lastCount:   0,
 		chat:        "UTF-8",
 	}
-	xs.server = s
-	return xs
+	search.server = s
+	search.server.Xs = x
+	return search
 }
 
 /**
@@ -78,7 +79,7 @@ func (s *XSSearch) Search(query string, offset, limit int) ([]*XSDocument, error
 	}
 
 	vnoes := s.xs.GetScheme().GetVnoMap()
-	//fmt.Println(vnoes)
+	fmt.Println(vnoes)
 	docs := []*XSDocument{}
 	var doc *XSDocument
 	for {
@@ -141,14 +142,59 @@ func (s *XSSearch) clearQuery() {
 
 /**
  * 登记搜索语句中的字段
- * @param string $name 字段名称
  */
 func (s *XSSearch) regQueryPrefix(name string) {
-	// v, ok := s.prefix[name]
+	_, ok := s.prefix[name]
+	field := s.xs.GetField(name)
+	if !ok && (field != nil) && field.Vno != MIXED_VNO {
+		cmd := NewCommand(XS_CMD_QUERY_PREFIX, XS_CMD_PREFIX_NORMAL, field.Vno, name, "")
+		s.server.ExecCommand1(cmd)
+		s.prefix[name] = true
+	}
+}
 
-	// if !ok {
+/**
+ * 设置默认搜索语句
+ * 用于不带参数的 {@link count} 或 {@link search} 以及 {@link terms} 调用
+ * 可与 {@link addWeight} 组合运用
+ * @param string $query 搜索语句, 设为 null 则清空搜索语句, 最大长度为 80 字节
+ * @return XSSearch 返回对象本身以支持串接操作
+ */
+func (s *XSSearch) SetQuery(query string) {
+	s.clearQuery()
+	if query != "" {
+		s.query = query
+		s.addQueryString(query, XS_CMD_QUERY_OP_AND, 1)
+	}
+}
 
-	// }
+/**
+ * 增加默认搜索语句
+ * @param string $query 搜索语句
+ * @param int $addOp 与旧语句的结合操作符, 如果无旧语句或为空则这此无意义, 支持的操作符有:
+ *        XS_CMD_QUERY_OP_AND
+ *        XS_CMD_QUERY_OP_OR
+ *        XS_CMD_QUERY_OP_AND_NOT
+ *        XS_CMD_QUERY_OP_XOR
+ *        XS_CMD_QUERY_OP_AND_MAYBE
+ *        XS_CMD_QUERY_OP_FILTER
+ * @param float $scale 权重计算缩放比例, 默认为 1表示不缩放, 其它值范围 0.xx ~ 655.35
+ * @return string 修正后的搜索语句
+ */
+func (s *XSSearch) addQueryString(query string, addOp int, scale float32) string {
+	query = s.preQueryString(query)
+	var bScale string
+	if scale > 0 && scale != 1 {
+		v := uint16(scale * 100)
+		b := make([]byte, 2)
+		binary.LittleEndian.PutUint16(b, v)
+		bScale = string(b)
+	} else {
+		bScale = ""
+	}
+	cmd := NewCommand(XS_CMD_QUERY_PARSE, addOp, s.defaultOp, query, bScale)
+	s.server.ExecCommand1(cmd)
+	return query
 }
 
 func (x *XSSearch) Close() {

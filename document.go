@@ -101,6 +101,16 @@ func (x *XSDocument) F(name string) interface{} {
 	return x.Get(name)
 }
 
+func (x *XSDocument) F1(name string) string {
+	v := x.F(name)
+	vv, ok := v.(string)
+	if ok {
+		return vv
+	} else {
+		return ""
+	}
+}
+
 func (x *XSDocument) GetAddTerms(field string) map[string]int {
 	if x.terms == nil {
 		return nil

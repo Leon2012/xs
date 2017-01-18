@@ -87,21 +87,51 @@ func (x *XS) GetSearch() (*XSSearch, error) {
 	if x.search == nil {
 		addr := x.GetConfigStringValue("server.search")
 		app := x.GetName()
-		server, err := NewServer(addr, nil)
+		server, err := NewServer(addr, x)
 		if err != nil {
 			return nil, err
 		}
 		server.SetProject(app, "")
-		x.search = NewSearch(server)
-		x.search.xs = x
+		x.search = NewSearch(server, x)
 	}
 	return x.search, nil
+}
+
+func (x *XS) GetIndex() (*XSIndex, error) {
+	if x.index == nil {
+		addr := x.GetConfigStringValue("server.index")
+		app := x.GetName()
+		server, err := NewServer(addr, x)
+		if err != nil {
+			return nil, err
+		}
+		server.SetProject(app, "")
+		x.index = NewIndex(server, x)
+	}
+	return x.index, nil
 }
 
 func (x *XS) GetField(name string) *XSFieldMeta {
 	return x.scheme.GetField(name)
 }
 
+func (x *XS) GetIdField() *XSFieldMeta {
+	return x.scheme.GetIDField()
+}
+
+func (x *XS) GetTitleField() *XSFieldMeta {
+	return x.scheme.GetTitleField()
+}
+
+func (x *XS) GetBodyField() *XSFieldMeta {
+	return x.scheme.GetBodyField()
+}
+
+func (x *XS) GetAllFields() map[string]*XSFieldMeta {
+	return x.scheme.GetAllFields()
+}
+
 func (x *XS) Close() {
 	x.search.Close()
+	x.index.Close()
 }
